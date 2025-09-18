@@ -42,4 +42,3 @@ prompt.get(['userSelection'], function (err, result) {
     }
 });
 
-console.log("nikolai");
