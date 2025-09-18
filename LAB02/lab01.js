@@ -41,3 +41,5 @@ prompt.get(['userSelection'], function (err, result) {
         console.log("Computer Wins");
     }
 });
+
+console.log("nikolai");
