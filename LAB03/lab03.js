@@ -1,66 +1,50 @@
-const connect = require('connect');
-const url = require('url');
+// app.js
+const express = require('express');
+const app = express();
 
-const app = connect();
+// /lab2?method=add&x=16&y=4
+app.get('/lab2', (req, res) => {
+  const method = req.query.method;
+  const x = parseFloat(req.query.x);
+  const y = parseFloat(req.query.y);
 
-function calculate(req, res, next) {
-    const parsedUrl = url.parse(req.url, true);
-    if (parsedUrl.pathname === '/lab2') {
-        const { method, x, y } = parsedUrl.query;
+  // Basic validation
+  if (isNaN(x) || isNaN(y)) {
+    return res.send('Error: x and y must be numbers.');
+  }
 
-        if (!method || !x || !y) {
-            res.writeHead(400, { 'Content-Type': 'text/plain' });
-            res.end('Error: Missing parameters. Use method, x, and y.');
-            return;
-        }
+  let result;
+  let operator;
 
-        const numX = Number(x);
-        const numY = Number(y);
-        let result;
-        let operator;
+  // Determine math operation
+  switch (method) {
+    case 'add':
+      result = x + y;
+      operator = '+';
+      break;
+    case 'subtract':
+      result = x - y;
+      operator = '-';
+      break;
+    case 'multiply':
+      result = x * y;
+      operator = '*';
+      break;
+    case 'divide':
+      if (y === 0) return res.send('Error: Cannot divide by zero.');
+      result = x / y;
+      operator = '/';
+      break;
+    default:
+      return res.send('Error: Invalid method. Use add, subtract, multiply, or divide.');
+  }
 
-        switch (method.toLowerCase()) {
-            case 'add':
-                result = numX + numY;
-                operator = '+';
-                break;
-            case 'subtract':
-                result = numX - numY;
-                operator = '-';
-                break;
-            case 'multiply':
-                result = numX * numY;
-                operator = '*';
-                break;
-            case 'divide':
-                if (numY === 0) {
-                    res.writeHead(400, { 'Content-Type': 'text/plain' });
-                    res.end('Error: Cannot divide by zero.');
-                    return;
-                }
-                result = numX / numY;
-                operator = '/';
-                break;
-            default:
-                res.writeHead(400, { 'Content-Type': 'text/plain' });
-                res.end(`Error, Invalid method + '${method}'. Use add, subtract, multiply or divide.` );
-                return;
-        }
-
-        res.writeHead(200, { 'Content-Type': 'text/plain' });
-        res.end(`${numX}  ${operator}  ${numY} = ${result}`);
-    } else {
-        next();
-    }
-}
-
-app.use(calculate);
-
-app.use((req, res) => {
-    res.writeHead(404, { 'Content-Type': 'text/plain' });
-    res.end('404 Not Found');
+  // Display the result
+  res.send(`${x} ${operator} ${y} = ${result}`);
 });
 
-app.listen(3000, () => {
-    console.log('Server listening on http://localhost:3000');
+// Server setup
+const PORT = 3000;
+app.listen(PORT, () => {
+  console.log(`Server running on http://localhost:${PORT}`);
 });
